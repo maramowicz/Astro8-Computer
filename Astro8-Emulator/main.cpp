@@ -1732,6 +1732,36 @@ int ActualLineNumFromNum(int x) {
 	return outInt;
 }
 
+int GetArrayAddress(const string& id) {
+	// Search all array names to get index
+	for (int i = 0; i < vars.size(); i++)
+		if (id == vars[i])
+			return i + 16528;
+
+	// Not found, we cannot create array here because we don't has sizes so return -1
+	return -1;
+}
+
+void InitializeArray(const string& id, int sizes[64]) {
+	// Check length of sizes
+	int length = 0;
+	for (int i = 0; i < 64; i++)
+		if (sizes[i] == 0) length = i;
+	// If length = 0... wait,  that's illegal,  ignore it ;)
+	if (length ==  0) {
+		// TODO Error its not possible to create array with length 0
+		return;
+	}
+	// Else set variables to multiply of all numbers in sizes
+	int variables = 0;
+	for (int i = 0; i < length; i++)
+		variables += sizes[i];
+    // Init all values needed for Array
+    for (int i = 0; i < length; i++)
+		// first of name id has nedded address
+		vars.push_back(id);
+}
+
 int GetVariableAddress(const string& id) {
 	// Search all variable names to get index
 	for (int i = 0; i < vars.size(); i++)
@@ -1996,6 +2026,28 @@ string CompileCode(const string& inputcode) {
 
 			compiledLines.push_back(",\n, " + string("define:  '") + addrPre + "' as '" + valuePre + "'");
 			compiledLines.push_back("set " + to_string(addr) + " " + to_string(value));
+			continue;
+		}
+
+		// "array" command (array $name[size0][size1][size2]... (up to 64))
+		if (command == "array")
+		{
+			string addrPre = trim(split(split(codelines[i], "array ")[1], "[")[0]);
+			int variablesCount = 0;
+			for (int j = 0; j < codelines[i].size(); j++)
+				if (codelines[i][j] == '[') variablesCount++;
+			int variables[variablesCount];
+			for (int j = 0; j < variablesCount; j++)
+				variables[j] = ParseValue(split(split(split(codelines[i], "array ")[1], "[")[j+1], "]")[0]);
+			string valuePre = trim(split(split(codelines[i], "array ")[1], "[")[1]);
+			PrintColored("ok.	", greenFGColor, "");
+			cout << "array:     ";
+			PrintColored("'" + addrPre + "'", brightBlueFGColor, "");
+			PrintColored(" with " + to_string(variablesCount) + " dimensions ", brightBlackFGColor, "");
+			for (int j = 0; j < variablesCount; j++)
+				PrintColored("'" + to_string(variables[j]) + "'", brightBlueFGColor, "");
+			PrintColored("\n", brightBlueFGColor, "");
+
 			continue;
 		}
 
