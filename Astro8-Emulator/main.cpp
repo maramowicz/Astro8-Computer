@@ -4,7 +4,7 @@
 #include <string> 
 #include <chrono>
 #include <limits.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <sstream>
 #include <fstream>
 #include <codecvt>
