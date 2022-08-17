@@ -1762,7 +1762,12 @@ void InitializeArray(const string& id, int sizes[], int size) {
 		// first of name id has nedded address
 		vars.push_back(id);
 }
+int GetArrayVariableAddress(const string& id, int sizes[], int size) {
+	// Get address of array
+	int arrayAddr = GetArrayAddress(id);
+	//NOTE table a,b,c... pos x,y,z... addr=x+y*a+z*a*b...
 
+}
 int GetVariableAddress(const string& id) {
 	// Search all variable names to get index
 	for (int i = 0; i < vars.size(); i++)
