@@ -1752,6 +1752,11 @@ void InitializeArray(const string& id, int sizes[], int size) {
 	int variables = 1;
 	for (int i = 0; i < size; i++)
 		variables *= sizes[i];
+	// selfcheck: is variable too big?
+	if (vars.size()+variables+size+1 > 61439) {
+		//TODO Error array is too Big
+		return;
+	}
     // Init all values needed for Array
     for (int i = 0; i < variables+size+1; i++)
 		// first of name id has nedded address
