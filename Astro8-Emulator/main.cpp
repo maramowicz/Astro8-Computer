@@ -1742,22 +1742,18 @@ int GetArrayAddress(const string& id) {
 	return -1;
 }
 
-void InitializeArray(const string& id, int sizes[64]) {
-	// Check length of sizes
-	int length = 0;
-	for (int i = 0; i < 64; i++)
-		if (sizes[i] == 0) length = i;
-	// If length = 0... wait,  that's illegal,  ignore it ;)
-	if (length ==  0) {
+void InitializeArray(const string& id, int sizes[], int size) {
+	// If size = 0... wait,  that's illegal,  ignore it ;)
+	if (size ==  0) {
 		// TODO Error its not possible to create array with length 0
 		return;
 	}
 	// Else set variables to multiply of all numbers in sizes
-	int variables = 0;
-	for (int i = 0; i < length; i++)
-		variables += sizes[i];
+	int variables = 1;
+	for (int i = 0; i < size; i++)
+		variables *= sizes[i];
     // Init all values needed for Array
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < variables+size+1; i++)
 		// first of name id has nedded address
 		vars.push_back(id);
 }
@@ -2032,6 +2028,7 @@ string CompileCode(const string& inputcode) {
 		// "array" command (array $name[size0][size1][size2]... (up to 64))
 		if (command == "array")
 		{
+			cout << "chechpoint 1";
 			string addrPre = trim(split(split(codelines[i], "array ")[1], "[")[0]);
 			int variablesCount = 0;
 			for (int j = 0; j < codelines[i].size(); j++)
@@ -2041,13 +2038,27 @@ string CompileCode(const string& inputcode) {
 				variables[j] = ParseValue(split(split(split(codelines[i], "array ")[1], "[")[j+1], "]")[0]);
 			string valuePre = trim(split(split(codelines[i], "array ")[1], "[")[1]);
 			PrintColored("ok.	", greenFGColor, "");
-			cout << "array:     ";
+
+			int size = 1;
+			for (int i = 0; i < variablesCount; i++)
+				size *= variables[i];
+			size+=1+variablesCount;
+
+			cout << "array(" + to_string(size) + "):     ";
 			PrintColored("'" + addrPre + "'", brightBlueFGColor, "");
 			PrintColored(" with " + to_string(variablesCount) + " dimensions ", brightBlackFGColor, "");
 			for (int j = 0; j < variablesCount; j++)
-				PrintColored("'" + to_string(variables[j]) + "'", brightBlueFGColor, "");
+				PrintColored(to_string(variables[j]) + ", ", brightBlueFGColor, "");
 			PrintColored("\n", brightBlueFGColor, "");
 
+			string info;
+			for (int j = 0; j < variablesCount-1; j++)
+				info+=(to_string(variables[j]) + ",");
+			info+=(to_string(variables[variablesCount-1]));
+			compiledLines.push_back(",\n, " + string("array:  '") + info + "'");
+			InitializeArray(addrPre, variables, variablesCount);
+			for (int j = 0; j < variablesCount; j++)
+				compiledLines.push_back("ldia " + to_string(variables[j]) + "\nstlge\nhere " + to_string(GetArrayAddress(addrPre) + j));
 			continue;
 		}
 
