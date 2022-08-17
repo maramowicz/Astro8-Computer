@@ -1753,7 +1753,7 @@ void InitializeArray(const string& id, int sizes[], int size) {
 	for (int i = 0; i < size; i++)
 		variables *= sizes[i];
 	// selfcheck: is variable too big?
-	if (vars.size()+variables+size+1 > 61439) {
+	if (vars.size()+variables+size+1 > 61438) {
 		//TODO Error array is too Big
 		return;
 	}
